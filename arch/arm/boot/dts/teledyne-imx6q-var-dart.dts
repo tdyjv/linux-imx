@@ -16,6 +16,14 @@
 / {
 	model = "Variscite i.MX6 QUAD VAR-DART Smart Device Board";
 	compatible = "fsl,imx6q-var-dart", "fsl,imx6q";
+	/*
+	leds {
+		compatible = "gpio-leds";
+		fdti_reset {
+			gpios = <&gpio1 3 1>;
+		};
+	};
+	*/
 };
 
 &cpu0 {
@@ -72,3 +80,93 @@
 &sata {
 	status = "disabled";
 };
+
+&hdmi_video {
+	status = "disabled";
+};
+
+&mipi_csi {
+	status = "disabled";
+};
+
+&ecspi3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_ecspi3_1>;
+	status = "okay";
+	num-cs = <1>;
+	fsl,spi-num-chipselects = <1>;
+	cs-gpios = <&gpio4 24 1>;
+	slave0@0 {
+		compatible = "rohm,dh2228fv";
+		spi-max-frequency = <4000000>;
+		reg = <0 0>;
+	};
+/*
+	spidev@0x00 {
+                compatible = "spidev";
+                spi-max-frequency = <10000000>;
+                reg = <0>;
+        };
+*/
+/*MX6QDL_PAD_DISP0_DAT3__ECSPI3_SS0*/
+};
+
+&fec {
+	/delete-property/ phy-reset-gpios;
+   status = "okay";
+   label = "fec";
+   
+   fixed-link {
+         speed = <1000>;
+         full-duplex;
+   };
+};
+
+//remove CLKO2 from hog, used as GPIO for FTDI nReset
+&pinctrl_hog {
+	fsl,pins = <
+		/* PMIC INT */
+		MX6QDL_PAD_GPIO_17__GPIO7_IO12		0x80000000
+		/* for Bluetooth/wifi enable */
+		MX6QDL_PAD_SD3_DAT6__GPIO6_IO18		0x1b0b1
+		/* Wifi Slow Clock */
+		MX6QDL_PAD_ENET_RXD0__OSC32K_32K_OUT	0x000b0
+		/* Audio Clock */
+		MX6QDL_PAD_GPIO_0__CCM_CLKO1		0x130b0
+	>;
+};
+
+&iomuxc {
+	imx6qdl-var-som-mx6 {
+		pinctrl_uart5: uart5grp-1 {
+			fsl,pins = <
+				MX6QDL_PAD_KEY_COL1__UART5_TX_DATA	0x1b0b1
+				MX6QDL_PAD_KEY_ROW1__UART5_RX_DATA	0x1b0b1
+			>;
+		};
+		pinctrl_uart4: uart4grp-1 {
+				fsl,pins = <
+					MX6QDL_PAD_KEY_COL0__UART4_TX_DATA	0x1b0b1
+					MX6QDL_PAD_KEY_ROW0__UART4_RX_DATA	0x1b0b1
+				>;
+		};
+	};
+};
+
+/* Bluetooth Uart */
+&uart2 {
+	status = "disabled";
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart4>;
+	status = "okay"; 
+};
+
+&uart5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart5>;
+	status = "okay"; 
+};
+
